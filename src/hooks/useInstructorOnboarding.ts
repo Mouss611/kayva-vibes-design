@@ -55,11 +55,6 @@ export const useInstructorOnboarding = () => {
     setFormData(updatedData);
     
     if (!validateStep(currentStep)) {
-      toast({
-        variant: "destructive",
-        title: "Validation requise",
-        description: "Veuillez remplir tous les champs obligatoires avant de continuer.",
-      });
       return;
     }
 
