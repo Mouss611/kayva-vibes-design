@@ -19,7 +19,7 @@ const Onboarding = () => {
         .from("student_onboarding")
         .select("onboarding_completed")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (onboardingData?.onboarding_completed) {
         navigate("/");
