@@ -26,7 +26,7 @@ const LocationStep = ({ onNext, data }: LocationStepProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white p-6 rounded-lg">
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <MapPin className="w-6 h-6 text-primary" />
