@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Car } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface OfferCardProps {
   price: number;
@@ -9,6 +10,12 @@ interface OfferCardProps {
 }
 
 const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
+  const navigate = useNavigate();
+
+  const handleOfferSelection = () => {
+    navigate("/auth");
+  };
+
   return (
     <div className="bg-white rounded-2xl p-6 card-shadow hover:scale-105 transition-transform">
       <div className="flex justify-center mb-4">
@@ -21,7 +28,10 @@ const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
         <div className="text-sm text-dark/60">pendant {months} mois</div>
         <div className="text-sm line-through text-dark/40">au lieu de {oldPrice}€/mois</div>
       </div>
-      <Button className="w-full gradient-bg text-white hover:opacity-90 transition-opacity">
+      <Button 
+        className="w-full gradient-bg text-white hover:opacity-90 transition-opacity"
+        onClick={handleOfferSelection}
+      >
         Choisir cette offre
       </Button>
     </div>
