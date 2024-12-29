@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { DocumentStatus } from "@/types/onboarding";
 
 interface DocumentsStepProps {
@@ -22,16 +20,8 @@ const documents = [
 ] as const;
 
 const DocumentsStep = ({ onNext, data }: DocumentsStepProps) => {
-  const handleDocumentChange = (documentId: keyof DocumentStatus, checked: boolean) => {
-    const updatedDocuments = {
-      ...data.documents_status,
-      [documentId]: checked,
-    };
-    onNext({ documents_status: updatedDocuments });
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white p-6 rounded-lg">
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <FileText className="w-6 h-6 text-primary" />
@@ -42,22 +32,13 @@ const DocumentsStep = ({ onNext, data }: DocumentsStepProps) => {
         </p>
       </div>
 
-      <div className="space-y-4">
+      <ul className="space-y-3 list-disc pl-6">
         {documents.map((doc) => (
-          <div key={doc.id} className="flex items-start space-x-2">
-            <Checkbox
-              id={doc.id}
-              checked={data.documents_status[doc.id as keyof DocumentStatus]}
-              onCheckedChange={(checked) => 
-                handleDocumentChange(doc.id as keyof DocumentStatus, checked as boolean)
-              }
-            />
-            <Label htmlFor={doc.id} className="text-sm leading-none">
-              {doc.label}
-            </Label>
-          </div>
+          <li key={doc.id} className="text-gray-700">
+            {doc.label}
+          </li>
         ))}
-      </div>
+      </ul>
 
       <div className="flex justify-end">
         <Button onClick={() => onNext({ documents_status: data.documents_status })}>
