@@ -51,6 +51,54 @@ export type Database = {
         }
         Relationships: []
       }
+      student_onboarding: {
+        Row: {
+          age: number
+          availability: Database["public"]["Enums"]["availability"][]
+          city: string
+          created_at: string
+          driving_experience: boolean
+          driving_motivation: string
+          gender: Database["public"]["Enums"]["gender"]
+          id: string
+          max_distance: number
+          onboarding_completed: boolean | null
+          postal_code: string
+          start_preference: Database["public"]["Enums"]["start_preference"]
+          updated_at: string
+        }
+        Insert: {
+          age: number
+          availability: Database["public"]["Enums"]["availability"][]
+          city: string
+          created_at?: string
+          driving_experience: boolean
+          driving_motivation: string
+          gender: Database["public"]["Enums"]["gender"]
+          id: string
+          max_distance: number
+          onboarding_completed?: boolean | null
+          postal_code: string
+          start_preference: Database["public"]["Enums"]["start_preference"]
+          updated_at?: string
+        }
+        Update: {
+          age?: number
+          availability?: Database["public"]["Enums"]["availability"][]
+          city?: string
+          created_at?: string
+          driving_experience?: boolean
+          driving_motivation?: string
+          gender?: Database["public"]["Enums"]["gender"]
+          id?: string
+          max_distance?: number
+          onboarding_completed?: boolean | null
+          postal_code?: string
+          start_preference?: Database["public"]["Enums"]["start_preference"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -59,6 +107,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      availability: "morning" | "afternoon" | "evening" | "weekend"
+      gender: "male" | "female"
+      start_preference: "as_soon_as_possible" | "next_week" | "later"
       user_role: "student" | "instructor"
     }
     CompositeTypes: {

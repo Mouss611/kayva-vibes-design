@@ -32,12 +32,26 @@ const LoginForm = ({ role }: LoginFormProps) => {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: { user }, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
       if (error) throw error;
+
+      // Check if student needs onboarding
+      if (role === "student") {
+        const { data: onboardingData } = await supabase
+          .from("student_onboarding")
+          .select("onboarding_completed")
+          .eq("id", user?.id)
+          .single();
+
+        if (!onboardingData?.onboarding_completed) {
+          navigate("/onboarding");
+          return;
+        }
+      }
 
       toast({
         title: "Connexion réussie",
