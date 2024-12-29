@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Car } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface OfferCardProps {
   price: number;
@@ -11,9 +13,50 @@ interface OfferCardProps {
 
 const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleOfferSelection = () => {
-    navigate("/auth");
+  const handleOfferSelection = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ price, months, hours }),
+        }
+      );
+
+      const { url, error } = await response.json();
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Une erreur est survenue lors de la création de la session de paiement.",
+        });
+        return;
+      }
+
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la création de la session de paiement.",
+      });
+    }
   };
 
   return (
@@ -32,7 +75,7 @@ const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
         className="w-full gradient-bg text-white hover:opacity-90 transition-opacity"
         onClick={handleOfferSelection}
       >
-        Choisir cette offre
+        Souscrire maintenant
       </Button>
     </div>
   );
