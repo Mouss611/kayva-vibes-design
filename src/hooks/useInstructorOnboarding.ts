@@ -31,8 +31,38 @@ export const useInstructorOnboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validateStep = (step: number): boolean => {
+    switch (step) {
+      case 2: // LocationStep
+        return !!formData.preferred_location;
+      case 3: // AvailabilityStep
+        return formData.working_days.length > 0;
+      case 4: // StudentsPerDayStep
+        return formData.students_per_day >= 8;
+      case 5: // IncomeEstimateStep
+        return true; // Auto-calculated, always valid
+      case 6: // PhoneConfirmationStep
+        return !!formData.phone_number && formData.phone_number.length >= 10;
+      case 7: // DocumentsStep
+        return Object.values(formData.documents_status).some(value => value);
+      default:
+        return true;
+    }
+  };
+
   const handleNext = (stepData: Partial<OnboardingFormData>) => {
-    setFormData((prev) => ({ ...prev, ...stepData }));
+    const updatedData = { ...formData, ...stepData };
+    setFormData(updatedData);
+    
+    if (!validateStep(currentStep)) {
+      toast({
+        variant: "destructive",
+        title: "Validation requise",
+        description: "Veuillez remplir tous les champs obligatoires avant de continuer.",
+      });
+      return;
+    }
+
     if (currentStep < 8) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -85,5 +115,6 @@ export const useInstructorOnboarding = () => {
     handleNext,
     handleBack,
     handleSubmit,
+    validateStep,
   };
 };

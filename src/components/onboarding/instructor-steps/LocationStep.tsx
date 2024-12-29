@@ -57,6 +57,7 @@ const LocationStep = ({ onNext, data }: LocationStepProps) => {
         <Button 
           onClick={handleNext}
           disabled={!location}
+          className={!location ? "opacity-50 cursor-not-allowed" : ""}
         >
           Continuer
         </Button>

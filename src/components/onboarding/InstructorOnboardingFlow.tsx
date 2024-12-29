@@ -15,7 +15,7 @@ import { ArrowLeft } from "lucide-react";
 const TOTAL_STEPS = 8;
 
 const InstructorOnboardingFlow = () => {
-  const { currentStep, formData, handleNext, handleBack, handleSubmit } = useInstructorOnboarding();
+  const { currentStep, formData, handleNext, handleBack, handleSubmit, validateStep } = useInstructorOnboarding();
 
   const renderStep = () => {
     switch (currentStep) {
@@ -59,6 +59,7 @@ const InstructorOnboardingFlow = () => {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -20, opacity: 0 }}
           transition={{ duration: 0.3 }}
+          className="w-full max-w-lg mx-auto"
         >
           {renderStep()}
         </motion.div>
