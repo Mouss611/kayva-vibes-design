@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface FinalStepProps {
   onSubmit: () => void;
@@ -7,6 +8,13 @@ interface FinalStepProps {
 }
 
 const FinalStep = ({ onSubmit }: FinalStepProps) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async () => {
+    await onSubmit();
+    navigate("/dashboard/instructor");
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4 text-center">
@@ -23,7 +31,7 @@ const FinalStep = ({ onSubmit }: FinalStepProps) => {
       </div>
 
       <div className="flex justify-center">
-        <Button onClick={onSubmit}>
+        <Button onClick={handleSubmit}>
           Terminer l'inscription
         </Button>
       </div>
