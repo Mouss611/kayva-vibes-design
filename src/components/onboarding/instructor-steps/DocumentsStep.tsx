@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { DocumentStatus } from "@/types/onboarding";
 
 interface DocumentsStepProps {
-  onNext: (data: { documents_status: Record<string, boolean> }) => void;
-  data: { documents_status: Record<string, boolean> };
+  onNext: (data: { documents_status: DocumentStatus }) => void;
+  data: { documents_status: DocumentStatus };
 }
 
 const documents = [
@@ -18,10 +19,10 @@ const documents = [
   { id: "professional_insurance", label: "Attestation d'assurance RC Pro 'Auto-école'" },
   { id: "business_registration", label: "Kbis ou notification d'affiliation" },
   { id: "criminal_record", label: "Extrait du bulletin n°3 du casier judiciaire" },
-];
+] as const;
 
 const DocumentsStep = ({ onNext, data }: DocumentsStepProps) => {
-  const handleDocumentChange = (documentId: string, checked: boolean) => {
+  const handleDocumentChange = (documentId: keyof DocumentStatus, checked: boolean) => {
     const updatedDocuments = {
       ...data.documents_status,
       [documentId]: checked,
@@ -46,8 +47,10 @@ const DocumentsStep = ({ onNext, data }: DocumentsStepProps) => {
           <div key={doc.id} className="flex items-start space-x-2">
             <Checkbox
               id={doc.id}
-              checked={data.documents_status[doc.id]}
-              onCheckedChange={(checked) => handleDocumentChange(doc.id, checked as boolean)}
+              checked={data.documents_status[doc.id as keyof DocumentStatus]}
+              onCheckedChange={(checked) => 
+                handleDocumentChange(doc.id as keyof DocumentStatus, checked as boolean)
+              }
             />
             <Label htmlFor={doc.id} className="text-sm leading-none">
               {doc.label}

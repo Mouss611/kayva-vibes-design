@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { OnboardingFormData } from "@/types/onboarding";
 import OnboardingLayout from "./OnboardingLayout";
 import WelcomeStep from "./instructor-steps/WelcomeStep";
 import LocationStep from "./instructor-steps/LocationStep";
@@ -14,28 +15,6 @@ import DocumentsStep from "./instructor-steps/DocumentsStep";
 import FinalStep from "./instructor-steps/FinalStep";
 
 const TOTAL_STEPS = 8;
-
-interface OnboardingFormData {
-  preferred_location: string;
-  working_days: string[];
-  students_per_day: number;
-  estimated_income_range: {
-    min: number;
-    max: number;
-  };
-  phone_number: string;
-  documents_status: {
-    identity: boolean;
-    driving_license: boolean;
-    teaching_permit: boolean;
-    vehicle_registration: boolean;
-    technical_control: boolean;
-    vehicle_insurance: boolean;
-    professional_insurance: boolean;
-    business_registration: boolean;
-    criminal_record: boolean;
-  };
-}
 
 const InstructorOnboardingFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -109,7 +88,7 @@ const InstructorOnboardingFlow = () => {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <WelcomeStep onNext={handleNext} />;
+        return <WelcomeStep onNext={handleNext} data={formData} />;
       case 2:
         return <LocationStep onNext={handleNext} data={formData} />;
       case 3:
@@ -123,7 +102,7 @@ const InstructorOnboardingFlow = () => {
       case 7:
         return <DocumentsStep onNext={handleNext} data={formData} />;
       case 8:
-        return <FinalStep data={formData} onSubmit={handleSubmit} />;
+        return <FinalStep onSubmit={handleSubmit} data={formData} />;
       default:
         return null;
     }
