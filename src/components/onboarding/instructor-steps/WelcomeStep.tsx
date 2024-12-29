@@ -1,11 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { OnboardingStepProps } from "@/types/onboarding";
 
-interface WelcomeStepProps {
-  onNext: (data: any) => void;
-}
-
-const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
+const WelcomeStep = ({ onNext }: Partial<OnboardingStepProps>) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -25,7 +22,7 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
       </div>
 
       <div className="flex justify-center">
-        <Button onClick={() => onNext({})}>
+        <Button onClick={() => onNext?.({})}>
           Commencer
         </Button>
       </div>

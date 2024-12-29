@@ -8,6 +8,7 @@ export interface DocumentStatus {
   professional_insurance: boolean;
   business_registration: boolean;
   criminal_record: boolean;
+  [key: string]: boolean; // Add index signature for Json compatibility
 }
 
 export interface OnboardingFormData {
