@@ -33,19 +33,19 @@ const StudentsPerDayStep = ({ onNext, data }: StudentsPerDayStepProps) => {
           value="8" 
           className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
         >
-          8 élèves/jour 👶
+          8/jour 👶
         </ToggleGroupItem>
         <ToggleGroupItem 
           value="9" 
           className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
         >
-          9 élèves/jour 👦
+          9/jour 👦
         </ToggleGroupItem>
         <ToggleGroupItem 
           value="10" 
           className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
         >
-          10 élèves/jour 👨‍🏫
+          10/jour 👨‍🏫
         </ToggleGroupItem>
       </ToggleGroup>
 
