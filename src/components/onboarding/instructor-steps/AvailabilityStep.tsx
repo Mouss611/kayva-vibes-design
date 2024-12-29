@@ -43,16 +43,28 @@ const AvailabilityStep = ({ onNext, data }: AvailabilityStepProps) => {
         onValueChange={(value) => value && setWorkingDays([value])}
         className="justify-center"
       >
-        <ToggleGroupItem value="5-7" className="px-4">
+        <ToggleGroupItem 
+          value="5-7" 
+          className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
+        >
           5/7J 🖐️
         </ToggleGroupItem>
-        <ToggleGroupItem value="6-7" className="px-4">
+        <ToggleGroupItem 
+          value="6-7" 
+          className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
+        >
           6/7J ✋
         </ToggleGroupItem>
-        <ToggleGroupItem value="7-7" className="px-4">
+        <ToggleGroupItem 
+          value="7-7" 
+          className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
+        >
           7/7J 💪
         </ToggleGroupItem>
-        <ToggleGroupItem value="2-7" className="px-4">
+        <ToggleGroupItem 
+          value="2-7" 
+          className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
+        >
           Week-end ⏰
         </ToggleGroupItem>
       </ToggleGroup>
