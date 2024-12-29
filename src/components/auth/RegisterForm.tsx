@@ -3,8 +3,9 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
@@ -19,6 +20,10 @@ interface RegisterFormValues {
   phoneNumber: string;
   password: string;
   confirmPassword: string;
+  employmentStatus?: string;
+  postalCode?: string;
+  preferredLocation?: string;
+  teachingHours?: string;
 }
 
 const RegisterForm = ({ role }: RegisterFormProps) => {
@@ -34,6 +39,10 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
       phoneNumber: "",
       password: "",
       confirmPassword: "",
+      employmentStatus: "",
+      postalCode: "",
+      preferredLocation: "",
+      teachingHours: "",
     },
   });
 
@@ -58,6 +67,10 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
             last_name: data.lastName,
             role: role,
             phone_number: data.phoneNumber,
+            employment_status: data.employmentStatus,
+            postal_code: data.postalCode,
+            preferred_location: data.preferredLocation,
+            teaching_hours: data.teachingHours,
           },
         },
       });
@@ -142,6 +155,94 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
           )}
         />
 
+        {role === "instructor" && (
+          <>
+            <FormField
+              control={form.control}
+              name="employmentStatus"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Situation professionnelle</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez votre statut" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="salarié">Salarié</SelectItem>
+                      <SelectItem value="auto-entrepreneur">Auto-entrepreneur</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="postalCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Code postal</FormLabel>
+                  <FormControl>
+                    <Input placeholder="75001" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="preferredLocation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zone d'activité préférée</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez votre zone" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="ile-de-france">Île-de-France</SelectItem>
+                      <SelectItem value="auvergne-rhone-alpes">Auvergne-Rhône-Alpes</SelectItem>
+                      <SelectItem value="provence-alpes-cote-azur">Provence-Alpes-Côte d'Azur</SelectItem>
+                      <SelectItem value="occitanie">Occitanie</SelectItem>
+                      <SelectItem value="nouvelle-aquitaine">Nouvelle-Aquitaine</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="teachingHours"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Disponibilité d'enseignement</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez vos disponibilités" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="temps-plein">Temps Plein</SelectItem>
+                      <SelectItem value="temps-partiel">Temps Partiel</SelectItem>
+                      <SelectItem value="flexible">Flexible</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
         <FormField
           control={form.control}
           name="password"
@@ -181,9 +282,20 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
               Inscription en cours...
             </>
           ) : (
-            "S'inscrire"
+            "Je m'inscris"
           )}
         </Button>
+
+        <div className="mt-4 p-4 bg-secondary/30 rounded-lg flex items-start gap-2">
+          <AlertTriangle className="h-5 w-5 text-primary-dark flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-gray-600">
+            En vous inscrivant, vous acceptez notre{" "}
+            <a href="/privacy-policy" className="text-primary hover:underline">
+              politique de confidentialité
+            </a>
+            . Vos données personnelles seront traitées conformément à celle-ci.
+          </p>
+        </div>
       </form>
     </Form>
   );
