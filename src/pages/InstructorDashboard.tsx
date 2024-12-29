@@ -18,7 +18,7 @@ const InstructorDashboard = () => {
         .from("profiles")
         .select("role")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (profileData?.role !== "instructor") {
         navigate("/");
