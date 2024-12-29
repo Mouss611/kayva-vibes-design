@@ -12,42 +12,57 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          documents_status: Json | null
           employment_status: string | null
+          estimated_income_range: Json | null
           first_name: string
           id: string
           last_name: string
+          onboarding_completed: boolean | null
           phone_number: string
           postal_code: string | null
           preferred_location: string | null
           role: Database["public"]["Enums"]["user_role"]
+          students_per_day: number | null
           teaching_hours: string | null
           updated_at: string
+          working_days: string[] | null
         }
         Insert: {
           created_at?: string
+          documents_status?: Json | null
           employment_status?: string | null
+          estimated_income_range?: Json | null
           first_name: string
           id: string
           last_name: string
+          onboarding_completed?: boolean | null
           phone_number: string
           postal_code?: string | null
           preferred_location?: string | null
           role: Database["public"]["Enums"]["user_role"]
+          students_per_day?: number | null
           teaching_hours?: string | null
           updated_at?: string
+          working_days?: string[] | null
         }
         Update: {
           created_at?: string
+          documents_status?: Json | null
           employment_status?: string | null
+          estimated_income_range?: Json | null
           first_name?: string
           id?: string
           last_name?: string
+          onboarding_completed?: boolean | null
           phone_number?: string
           postal_code?: string | null
           preferred_location?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          students_per_day?: number | null
           teaching_hours?: string | null
           updated_at?: string
+          working_days?: string[] | null
         }
         Relationships: []
       }

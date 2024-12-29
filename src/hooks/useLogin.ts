@@ -39,6 +39,22 @@ export const useLogin = (role: "student" | "instructor") => {
         return;
       }
 
+      if (role === "instructor") {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("id", user?.id)
+          .maybeSingle();
+
+        if (!profileData?.onboarding_completed) {
+          navigate("/onboarding/instructor");
+          return;
+        }
+
+        navigate("/dashboard/instructor");
+        return;
+      }
+
       toast({
         title: "Connexion réussie",
         description: "Vous allez être redirigé vers votre tableau de bord",
