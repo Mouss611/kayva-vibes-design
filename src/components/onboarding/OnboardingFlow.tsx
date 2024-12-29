@@ -12,8 +12,6 @@ import LocationStep from "./steps/LocationStep";
 import StartPreferenceStep from "./steps/StartPreferenceStep";
 import SummaryStep from "./steps/SummaryStep";
 import { Database } from "@/integrations/supabase/types";
-import { ChevronLeft } from "lucide-react";
-import { Button } from "../ui/button";
 
 const TOTAL_STEPS = 7;
 
@@ -49,38 +47,8 @@ const OnboardingFlow = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const validateStep = (step: number): boolean => {
-    switch (step) {
-      case 1: // MotivationStep
-        return !!formData.driving_motivation;
-      case 2: // PersonalInfoStep
-        return formData.age >= 15 && !!formData.gender;
-      case 3: // AvailabilityStep
-        return formData.availability.length > 0;
-      case 4: // ExperienceStep
-        return true; // Always valid as it's a boolean choice
-      case 5: // LocationStep
-        return !!formData.city && !!formData.postal_code;
-      case 6: // StartPreferenceStep
-        return !!formData.start_preference;
-      default:
-        return true;
-    }
-  };
-
   const handleNext = (stepData: Partial<OnboardingFormData>) => {
-    const updatedData = { ...formData, ...stepData };
-    setFormData(updatedData);
-    
-    if (!validateStep(currentStep)) {
-      toast({
-        variant: "destructive",
-        title: "Validation requise",
-        description: "Veuillez remplir tous les champs obligatoires avant de continuer.",
-      });
-      return;
-    }
-
+    setFormData((prev) => ({ ...prev, ...stepData }));
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -145,30 +113,17 @@ const OnboardingFlow = () => {
 
   return (
     <OnboardingLayout currentStep={currentStep} totalSteps={TOTAL_STEPS}>
-      <div className="relative w-full max-w-lg mx-auto">
-        {currentStep > 1 && (
-          <Button
-            variant="ghost"
-            onClick={handleBack}
-            className="absolute left-0 top-0 flex items-center text-gray-600 hover:text-gray-900"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Retour
-          </Button>
-        )}
-        
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep}
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -20, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {renderStep()}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentStep}
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: -20, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {renderStep()}
+        </motion.div>
+      </AnimatePresence>
     </OnboardingLayout>
   );
 };

@@ -23,8 +23,6 @@ const MotivationStep = ({ onNext, data }: MotivationStepProps) => {
     }
   };
 
-  const isValid = motivation === "other" ? !!otherMotivation : !!motivation;
-
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -83,7 +81,7 @@ const MotivationStep = ({ onNext, data }: MotivationStepProps) => {
       <Button
         onClick={handleNext}
         className="w-full gradient-bg"
-        disabled={!isValid}
+        disabled={!motivation || (motivation === "other" && !otherMotivation)}
       >
         Continuer
       </Button>
