@@ -1,12 +1,9 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { useLogin } from "@/hooks/useLogin";
+import LoginButton from "./LoginButton";
+import ForgotPasswordButton from "./ForgotPasswordButton";
 
 interface LoginFormProps {
   role: "student" | "instructor";
@@ -18,10 +15,8 @@ interface LoginFormValues {
 }
 
 const LoginForm = ({ role }: LoginFormProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-
+  const { login, isLoading } = useLogin(role);
+  
   const form = useForm<LoginFormValues>({
     defaultValues: {
       email: "",
@@ -29,51 +24,8 @@ const LoginForm = ({ role }: LoginFormProps) => {
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    try {
-      setIsLoading(true);
-      const { data: { user }, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) throw error;
-
-      // Check if student needs onboarding
-      if (role === "student") {
-        const { data: onboardingData } = await supabase
-          .from("student_onboarding")
-          .select("onboarding_completed")
-          .eq("id", user?.id)
-          .maybeSingle();
-
-        // If no onboarding data exists or onboarding is not completed, redirect to onboarding
-        if (!onboardingData?.onboarding_completed) {
-          navigate("/onboarding");
-          return;
-        }
-
-        // If onboarding is completed, redirect to student dashboard
-        navigate("/dashboard/student");
-        return;
-      }
-
-      toast({
-        title: "Connexion réussie",
-        description: "Vous allez être redirigé vers votre tableau de bord",
-      });
-
-      // For non-student roles, redirect to home for now
-      navigate("/");
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de connexion",
-        description: error.message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (data: LoginFormValues) => {
+    login(data);
   };
 
   return (
@@ -107,29 +59,8 @@ const LoginForm = ({ role }: LoginFormProps) => {
           )}
         />
 
-        <Button
-          type="submit"
-          className="w-full gradient-bg"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Connexion en cours...
-            </>
-          ) : (
-            "Se connecter"
-          )}
-        </Button>
-
-        <Button
-          type="button"
-          variant="link"
-          className="w-full text-primary"
-          onClick={() => {}}
-        >
-          Mot de passe oublié ?
-        </Button>
+        <LoginButton isLoading={isLoading} />
+        <ForgotPasswordButton />
       </form>
     </Form>
   );
