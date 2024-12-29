@@ -24,21 +24,12 @@ const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
     }
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ price, months, hours }),
-        }
-      );
-
-      const { url, error } = await response.json();
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { price, months, hours }
+      });
 
       if (error) {
+        console.error('Error creating checkout session:', error);
         toast({
           variant: "destructive",
           title: "Erreur",
@@ -47,10 +38,11 @@ const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
         return;
       }
 
-      if (url) {
-        window.location.href = url;
+      if (data?.url) {
+        window.location.href = data.url;
       }
     } catch (error) {
+      console.error('Error:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
