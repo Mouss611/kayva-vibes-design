@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface AvailabilityStepProps {
   onNext: (data: { working_days: string[] }) => void;
@@ -8,6 +10,21 @@ interface AvailabilityStepProps {
 }
 
 const AvailabilityStep = ({ onNext, data }: AvailabilityStepProps) => {
+  const [workingDays, setWorkingDays] = useState<string[]>(data.working_days);
+  const { toast } = useToast();
+
+  const handleNext = () => {
+    if (!workingDays.length) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Veuillez sélectionner vos disponibilités",
+      });
+      return;
+    }
+    onNext({ working_days: workingDays });
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -22,8 +39,8 @@ const AvailabilityStep = ({ onNext, data }: AvailabilityStepProps) => {
 
       <ToggleGroup
         type="single"
-        defaultValue={data.working_days[0]}
-        onValueChange={(value) => value && onNext({ working_days: [value] })}
+        value={workingDays[0]}
+        onValueChange={(value) => value && setWorkingDays([value])}
         className="justify-center"
       >
         <ToggleGroupItem value="5-7" className="px-4">
@@ -41,7 +58,10 @@ const AvailabilityStep = ({ onNext, data }: AvailabilityStepProps) => {
       </ToggleGroup>
 
       <div className="flex justify-end">
-        <Button onClick={() => onNext({ working_days: data.working_days })}>
+        <Button 
+          onClick={handleNext}
+          disabled={!workingDays.length}
+        >
           Continuer
         </Button>
       </div>

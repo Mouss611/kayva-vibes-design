@@ -38,6 +38,12 @@ export const useInstructorOnboarding = () => {
     }
   };
 
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -77,6 +83,7 @@ export const useInstructorOnboarding = () => {
     currentStep,
     formData,
     handleNext,
+    handleBack,
     handleSubmit,
   };
 };

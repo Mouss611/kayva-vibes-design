@@ -9,11 +9,13 @@ import IncomeEstimateStep from "./instructor-steps/IncomeEstimateStep";
 import PhoneConfirmationStep from "./instructor-steps/PhoneConfirmationStep";
 import DocumentsStep from "./instructor-steps/DocumentsStep";
 import FinalStep from "./instructor-steps/FinalStep";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const TOTAL_STEPS = 8;
 
 const InstructorOnboardingFlow = () => {
-  const { currentStep, formData, handleNext, handleSubmit } = useInstructorOnboarding();
+  const { currentStep, formData, handleNext, handleBack, handleSubmit } = useInstructorOnboarding();
 
   const renderStep = () => {
     switch (currentStep) {
@@ -40,6 +42,16 @@ const InstructorOnboardingFlow = () => {
 
   return (
     <OnboardingLayout currentStep={currentStep} totalSteps={TOTAL_STEPS}>
+      {currentStep > 1 && (
+        <Button
+          variant="ghost"
+          onClick={handleBack}
+          className="absolute left-4 top-4 md:left-8 md:top-8"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Retour
+        </Button>
+      )}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}
