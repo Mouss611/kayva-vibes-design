@@ -52,6 +52,10 @@ const LoginForm = ({ role }: LoginFormProps) => {
           navigate("/onboarding");
           return;
         }
+
+        // If onboarding is completed, redirect to student dashboard
+        navigate("/dashboard/student");
+        return;
       }
 
       toast({
@@ -59,6 +63,7 @@ const LoginForm = ({ role }: LoginFormProps) => {
         description: "Vous allez être redirigé vers votre tableau de bord",
       });
 
+      // For non-student roles, redirect to home for now
       navigate("/");
     } catch (error: any) {
       toast({

@@ -80,7 +80,7 @@ const OnboardingFlow = () => {
         description: "Bienvenue dans votre espace élève",
       });
 
-      navigate("/");
+      navigate("/dashboard/student");
     } catch (error: any) {
       toast({
         variant: "destructive",
