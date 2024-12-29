@@ -4,8 +4,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { CalendarClock, CalendarDays, Calendar } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
 
-type StartPreference = "as_soon_as_possible" | "next_week" | "later";
+type StartPreference = Database["public"]["Enums"]["start_preference"];
 
 interface StartPreferenceStepProps {
   onNext: (data: { start_preference: StartPreference }) => void;

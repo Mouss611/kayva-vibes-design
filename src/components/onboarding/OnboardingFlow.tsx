@@ -11,26 +11,43 @@ import ExperienceStep from "./steps/ExperienceStep";
 import LocationStep from "./steps/LocationStep";
 import StartPreferenceStep from "./steps/StartPreferenceStep";
 import SummaryStep from "./steps/SummaryStep";
+import { Database } from "@/integrations/supabase/types";
 
 const TOTAL_STEPS = 7;
 
+type Availability = Database["public"]["Enums"]["availability"];
+type Gender = Database["public"]["Enums"]["gender"];
+type StartPreference = Database["public"]["Enums"]["start_preference"];
+
+interface OnboardingFormData {
+  driving_motivation: string;
+  age: number;
+  gender: Gender;
+  availability: Availability[];
+  driving_experience: boolean;
+  city: string;
+  postal_code: string;
+  max_distance: number;
+  start_preference: StartPreference;
+}
+
 const OnboardingFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<OnboardingFormData>({
     driving_motivation: "",
     age: 18,
-    gender: "",
+    gender: "male",
     availability: [],
     driving_experience: false,
     city: "",
     postal_code: "",
     max_distance: 5,
-    start_preference: "",
+    start_preference: "as_soon_as_possible",
   });
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleNext = (stepData: Partial<typeof formData>) => {
+  const handleNext = (stepData: Partial<OnboardingFormData>) => {
     setFormData((prev) => ({ ...prev, ...stepData }));
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => prev + 1);

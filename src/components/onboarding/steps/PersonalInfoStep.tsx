@@ -4,17 +4,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
+import { Database } from "@/integrations/supabase/types";
+
+type Gender = Database["public"]["Enums"]["gender"];
 
 interface PersonalInfoStepProps {
-  onNext: (data: { age: number; gender: "male" | "female" }) => void;
-  data: { age: number; gender: string };
+  onNext: (data: { age: number; gender: Gender }) => void;
+  data: { age: number; gender: Gender };
 }
 
 const PersonalInfoStep = ({ onNext, data }: PersonalInfoStepProps) => {
   const [age, setAge] = useState(data.age || 18);
-  const [gender, setGender] = useState<"male" | "female">(
-    (data.gender as "male" | "female") || "male"
-  );
+  const [gender, setGender] = useState<Gender>(data.gender || "male");
 
   const handleNext = () => {
     onNext({ age, gender });
@@ -44,7 +45,7 @@ const PersonalInfoStep = ({ onNext, data }: PersonalInfoStepProps) => {
           <Label>Es-tu un homme ou une femme ?</Label>
           <RadioGroup
             value={gender}
-            onValueChange={(value: "male" | "female") => setGender(value)}
+            onValueChange={(value: Gender) => setGender(value)}
             className="grid grid-cols-2 gap-4"
           >
             <Card className="relative flex items-center justify-center p-4 cursor-pointer hover:border-primary transition-colors">
