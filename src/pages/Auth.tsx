@@ -11,7 +11,7 @@ const Auth = () => {
   const [role, setRole] = useState<"student" | "instructor">("student");
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-secondary/50 to-white p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-white p-4">
       <Card className="w-full max-w-lg p-6 space-y-6">
         <div className="text-center space-y-2">
           <a href="/" className="text-3xl font-bold text-primary inline-block">
