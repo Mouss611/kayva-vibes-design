@@ -1,10 +1,13 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 import Offers from "@/components/Offers";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -28,6 +31,22 @@ const StudentDashboard = () => {
 
     checkAuth();
   }, [navigate]);
+
+  useEffect(() => {
+    // Handle payment status messages
+    if (searchParams.get('success') === 'true') {
+      toast({
+        title: "Paiement réussi",
+        description: "Votre abonnement a été activé avec succès.",
+      });
+    } else if (searchParams.get('canceled') === 'true') {
+      toast({
+        variant: "destructive",
+        title: "Paiement annulé",
+        description: "Le processus de paiement a été annulé. Vous pouvez réessayer quand vous voulez.",
+      });
+    }
+  }, [searchParams, toast]);
 
   return (
     <div className="min-h-screen bg-background">
