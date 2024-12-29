@@ -45,8 +45,9 @@ const LoginForm = ({ role }: LoginFormProps) => {
           .from("student_onboarding")
           .select("onboarding_completed")
           .eq("id", user?.id)
-          .single();
+          .maybeSingle();
 
+        // If no onboarding data exists or onboarding is not completed, redirect to onboarding
         if (!onboardingData?.onboarding_completed) {
           navigate("/onboarding");
           return;
