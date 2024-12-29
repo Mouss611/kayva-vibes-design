@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { User } from "lucide-react";
+import { useState } from "react";
 
 interface StudentsPerDayStepProps {
   onNext: (data: { students_per_day: number }) => void;
@@ -9,6 +9,8 @@ interface StudentsPerDayStepProps {
 }
 
 const StudentsPerDayStep = ({ onNext, data }: StudentsPerDayStepProps) => {
+  const [studentsPerDay, setStudentsPerDay] = useState<number>(data.students_per_day);
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -21,27 +23,34 @@ const StudentsPerDayStep = ({ onNext, data }: StudentsPerDayStepProps) => {
         </p>
       </div>
 
-      <RadioGroup
-        defaultValue={data.students_per_day.toString()}
-        onValueChange={(value) => onNext({ students_per_day: parseInt(value) })}
-        className="space-y-4"
+      <ToggleGroup
+        type="single"
+        value={studentsPerDay.toString()}
+        onValueChange={(value) => value && setStudentsPerDay(parseInt(value))}
+        className="justify-center"
       >
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="8" id="r1" />
-          <Label htmlFor="r1">8 élèves/jour 👶</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="9" id="r2" />
-          <Label htmlFor="r2">9 élèves/jour 👦</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="10" id="r3" />
-          <Label htmlFor="r3">10 élèves/jour 👨‍🏫</Label>
-        </div>
-      </RadioGroup>
+        <ToggleGroupItem 
+          value="8" 
+          className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
+        >
+          8 élèves/jour 👶
+        </ToggleGroupItem>
+        <ToggleGroupItem 
+          value="9" 
+          className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
+        >
+          9 élèves/jour 👦
+        </ToggleGroupItem>
+        <ToggleGroupItem 
+          value="10" 
+          className="px-6 py-3 rounded-full transition-all duration-200 data-[state=on]:bg-primary data-[state=on]:text-white data-[state=on]:shadow-lg hover:bg-primary/10"
+        >
+          10 élèves/jour 👨‍🏫
+        </ToggleGroupItem>
+      </ToggleGroup>
 
       <div className="flex justify-end">
-        <Button onClick={() => onNext({ students_per_day: data.students_per_day })}>
+        <Button onClick={() => onNext({ students_per_day: studentsPerDay })}>
           Continuer
         </Button>
       </div>
