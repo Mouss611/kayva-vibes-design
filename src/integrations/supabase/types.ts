@@ -23,6 +23,7 @@ export type Database = {
           postal_code: string | null
           preferred_location: string | null
           role: Database["public"]["Enums"]["user_role"]
+          stripe_customer_id: string | null
           students_per_day: number | null
           teaching_hours: string | null
           updated_at: string
@@ -41,6 +42,7 @@ export type Database = {
           postal_code?: string | null
           preferred_location?: string | null
           role: Database["public"]["Enums"]["user_role"]
+          stripe_customer_id?: string | null
           students_per_day?: number | null
           teaching_hours?: string | null
           updated_at?: string
@@ -59,6 +61,7 @@ export type Database = {
           postal_code?: string | null
           preferred_location?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          stripe_customer_id?: string | null
           students_per_day?: number | null
           teaching_hours?: string | null
           updated_at?: string
@@ -114,6 +117,57 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          end_date: string
+          hours: number
+          id: string
+          last_payment_date: string | null
+          next_payment_date: string | null
+          payment_count: number
+          start_date: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          end_date: string
+          hours: number
+          id?: string
+          last_payment_date?: string | null
+          next_payment_date?: string | null
+          payment_count?: number
+          start_date: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          end_date?: string
+          hours?: number
+          id?: string
+          last_payment_date?: string | null
+          next_payment_date?: string | null
+          payment_count?: number
+          start_date?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -125,6 +179,13 @@ export type Database = {
       availability: "morning" | "afternoon" | "evening" | "weekend"
       gender: "male" | "female"
       start_preference: "as_soon_as_possible" | "next_week" | "later"
+      subscription_status:
+        | "active"
+        | "payment_failed"
+        | "payment_pending"
+        | "canceled"
+        | "completed"
+        | "suspended"
       user_role: "student" | "instructor"
     }
     CompositeTypes: {
