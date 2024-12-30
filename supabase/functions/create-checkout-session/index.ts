@@ -15,6 +15,11 @@ serve(async (req) => {
   try {
     const { price, months, hours } = await req.json();
     
+    // Convertir le prix en centimes et arrondir pour éviter les problèmes de précision
+    const amountInCents = Math.round(price * 100);
+    
+    console.log(`Creating checkout session for ${hours}h at ${amountInCents} cents (${price}€)`);
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -43,7 +48,7 @@ serve(async (req) => {
               name: `${hours}h de conduite`,
               description: `Forfait de ${hours}h de conduite sur ${months} mois`,
             },
-            unit_amount: price * 100,
+            unit_amount: amountInCents,
             recurring: {
               interval: 'month',
               interval_count: 1,
