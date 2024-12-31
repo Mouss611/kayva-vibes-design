@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import QuestionCard from './QuestionCard';
 import { Button } from './ui/button';
-import { useToast } from './ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowRight } from 'lucide-react';
 
 const QuestionsSection = () => {
   const [questions, setQuestions] = useState([]);
@@ -97,7 +98,10 @@ const QuestionsSection = () => {
       />
       {currentQuestionIndex < questions.length - 1 && (
         <div className="text-center">
-          <Button onClick={nextQuestion}>Question suivante</Button>
+          <Button onClick={nextQuestion} className="gap-2">
+            Question suivante
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       )}
     </div>

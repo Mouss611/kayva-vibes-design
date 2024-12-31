@@ -69,6 +69,48 @@ export type Database = {
         }
         Relationships: []
       }
+      questions: {
+        Row: {
+          answer_a: string
+          answer_b: string
+          answer_c: string
+          answer_d: string
+          category: string
+          correct_answer: string
+          created_at: string
+          explanation: string
+          id: string
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer_a: string
+          answer_b: string
+          answer_c: string
+          answer_d: string
+          category: string
+          correct_answer: string
+          created_at?: string
+          explanation: string
+          id?: string
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer_a?: string
+          answer_b?: string
+          answer_c?: string
+          answer_d?: string
+          category?: string
+          correct_answer?: string
+          created_at?: string
+          explanation?: string
+          id?: string
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       student_onboarding: {
         Row: {
           age: number
@@ -165,6 +207,74 @@ export type Database = {
           stripe_subscription_id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_answers: {
+        Row: {
+          created_at: string
+          id: string
+          is_correct: boolean
+          question_id: string | null
+          selected_answer: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_correct: boolean
+          question_id?: string | null
+          selected_answer: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          question_id?: string | null
+          selected_answer?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_progress: {
+        Row: {
+          category: string
+          correct_answers: number | null
+          created_at: string
+          id: string
+          total_answers: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          correct_answers?: number | null
+          created_at?: string
+          id?: string
+          total_answers?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          correct_answers?: number | null
+          created_at?: string
+          id?: string
+          total_answers?: number | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
