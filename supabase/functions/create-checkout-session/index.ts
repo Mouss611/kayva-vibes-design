@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -19,6 +20,7 @@ serve(async (req) => {
     const amountInCents = Math.round(price * 100);
     
     console.log(`Creating checkout session for ${hours}h at ${amountInCents} cents (${price}€)`);
+    console.log('Using Stripe key:', Deno.env.get('STRIPE_SECRET_KEY')?.substring(0, 8) + '...');
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -33,7 +35,12 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
+    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
+    if (!stripeSecretKey) {
+      throw new Error('Missing Stripe secret key');
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
     });
 
