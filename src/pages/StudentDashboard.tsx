@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import Offers from "@/components/Offers";
+import QuestionsSection from "@/components/QuestionsSection";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -53,6 +54,12 @@ const StudentDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Tableau de bord élève</h1>
         
+        {/* Questions section */}
+        <div className="mb-12">
+          <h2 className="text-xl font-semibold mb-4">Questions d'entraînement</h2>
+          <QuestionsSection />
+        </div>
+
         {/* Current status cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
           <div className="p-6 bg-white rounded-lg shadow-md">
