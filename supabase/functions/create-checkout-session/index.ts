@@ -83,7 +83,7 @@ serve(async (req) => {
       customer_email: user.email,
       client_reference_id: user.id,
       line_items: lineItems,
-      mode: includeCombinedPayment ? 'subscription_and_payment' : 'subscription',
+      mode: 'payment', // Changed from subscription_and_payment to payment
       success_url: `${req.headers.get('origin')}/dashboard/student?success=true`,
       cancel_url: `${req.headers.get('origin')}/dashboard/student?canceled=true`,
       metadata: {
