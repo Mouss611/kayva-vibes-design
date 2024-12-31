@@ -25,7 +25,12 @@ const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
 
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { price, months, hours }
+        body: { 
+          price, 
+          months, 
+          hours,
+          includeCombinedPayment: true // Activer le paiement combiné
+        }
       });
 
       if (error) {
@@ -62,6 +67,7 @@ const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
         <span className="text-dark/60">/mois</span>
         <div className="text-sm text-dark/60">pendant {months} mois</div>
         <div className="text-sm line-through text-dark/40">au lieu de {oldPrice}€/mois</div>
+        <div className="text-sm text-dark/60 mt-2">+ Frais d'inscription uniques de 30€</div>
       </div>
       <Button 
         className="w-full gradient-bg text-white hover:opacity-90 transition-opacity"
