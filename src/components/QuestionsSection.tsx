@@ -53,6 +53,17 @@ const QuestionsSection = () => {
     const isCorrect = answer === currentQuestion.correct_answer;
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Vous devez être connecté pour enregistrer vos réponses.",
+        });
+        return;
+      }
+
       // Save user's answer
       const { error: answerError } = await supabase
         .from('user_answers')
@@ -60,6 +71,7 @@ const QuestionsSection = () => {
           question_id: currentQuestion.id,
           selected_answer: answer,
           is_correct: isCorrect,
+          user_id: user.id
         });
 
       if (answerError) throw answerError;
@@ -71,6 +83,7 @@ const QuestionsSection = () => {
           category: currentQuestion.category,
           correct_answers: isCorrect ? 1 : 0,
           total_answers: 1,
+          user_id: user.id
         }, {
           onConflict: 'user_id,category'
         });
