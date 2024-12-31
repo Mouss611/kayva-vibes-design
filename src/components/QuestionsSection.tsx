@@ -5,8 +5,20 @@ import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowRight } from 'lucide-react';
 
+interface Question {
+  id: string;
+  question: string;
+  correct_answer: string;
+  answer_a: string;
+  answer_b: string;
+  answer_c: string;
+  answer_d: string;
+  explanation: string;
+  category: string;
+}
+
 const QuestionsSection = () => {
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -23,7 +35,7 @@ const QuestionsSection = () => {
 
       if (error) throw error;
 
-      setQuestions(data);
+      setQuestions(data || []);
     } catch (error) {
       console.error('Error fetching questions:', error);
       toast({
@@ -60,11 +72,17 @@ const QuestionsSection = () => {
           correct_answers: isCorrect ? 1 : 0,
           total_answers: 1,
         }, {
-          onConflict: 'user_id, category',
-          target: ['user_id', 'category'],
+          onConflict: 'user_id,category'
         });
 
       if (progressError) throw progressError;
+
+      // Show feedback toast
+      toast({
+        title: isCorrect ? "Bonne réponse !" : "Mauvaise réponse",
+        description: isCorrect ? "Continuez comme ça !" : currentQuestion.explanation,
+        variant: isCorrect ? "default" : "destructive",
+      });
 
     } catch (error) {
       console.error('Error saving answer:', error);
