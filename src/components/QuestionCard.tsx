@@ -17,9 +17,10 @@ interface QuestionCardProps {
     explanation: string;
   };
   onAnswer: (answer: string) => void;
+  onNextQuestion: () => void;
 }
 
-const QuestionCard: React.FC<QuestionCardProps> = ({ question, onAnswer }) => {
+const QuestionCard: React.FC<QuestionCardProps> = ({ question, onAnswer, onNextQuestion }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [hasAnswered, setHasAnswered] = useState(false);
 
@@ -27,6 +28,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onAnswer }) => {
     if (!selectedAnswer) return;
     onAnswer(selectedAnswer);
     setHasAnswered(true);
+  };
+
+  const handleNext = () => {
+    setSelectedAnswer('');
+    setHasAnswered(false);
+    onNextQuestion();
   };
 
   const isCorrect = hasAnswered && selectedAnswer === question.correct_answer;
@@ -72,7 +79,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onAnswer }) => {
           </div>
         )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-4">
         <Button 
           onClick={handleSubmit} 
           disabled={!selectedAnswer || hasAnswered}
@@ -80,6 +87,15 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onAnswer }) => {
         >
           Valider
         </Button>
+        {hasAnswered && (
+          <Button 
+            onClick={handleNext}
+            className="w-full"
+            variant="outline"
+          >
+            Question suivante
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

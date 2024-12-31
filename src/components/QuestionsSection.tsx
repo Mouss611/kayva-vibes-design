@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import QuestionCard from './QuestionCard';
-import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowRight } from 'lucide-react';
 
 interface Question {
   id: string;
@@ -107,7 +105,7 @@ const QuestionsSection = () => {
     }
   };
 
-  const nextQuestion = () => {
+  const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
@@ -126,15 +124,8 @@ const QuestionsSection = () => {
       <QuestionCard
         question={questions[currentQuestionIndex]}
         onAnswer={handleAnswer}
+        onNextQuestion={handleNextQuestion}
       />
-      {currentQuestionIndex < questions.length - 1 && (
-        <div className="text-center">
-          <Button onClick={nextQuestion} className="gap-2">
-            Question suivante
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
