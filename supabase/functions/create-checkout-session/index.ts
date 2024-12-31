@@ -98,6 +98,12 @@ serve(async (req) => {
           months: months,
           type: 'subscription'
         },
+        subscription_data: {
+          metadata: {
+            months_limit: months, // Pour le webhook qui gèrera la limite de mois
+            hours: hours,
+          }
+        }
       });
 
       // Retourner les deux URLs
@@ -140,6 +146,12 @@ serve(async (req) => {
           months: months,
           type: 'subscription'
         },
+        subscription_data: {
+          metadata: {
+            months_limit: months,
+            hours: hours,
+          }
+        }
       });
 
       return new Response(
