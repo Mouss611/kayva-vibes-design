@@ -100,7 +100,7 @@ serve(async (req) => {
         },
         subscription_data: {
           metadata: {
-            months_limit: months, // Pour le webhook qui gèrera la limite de mois
+            months_limit: months,
             hours: hours,
           }
         }
