@@ -29,7 +29,7 @@ const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
           price, 
           months, 
           hours,
-          includeCombinedPayment: true // Activer le paiement combiné
+          includeCombinedPayment: true
         }
       });
 
@@ -43,7 +43,15 @@ const OfferCard = ({ price, oldPrice, months, hours }: OfferCardProps) => {
         return;
       }
 
-      if (data?.url) {
+      // Rediriger d'abord vers le paiement des frais d'inscription
+      if (data?.registrationUrl) {
+        window.location.href = data.registrationUrl;
+        
+        // Sauvegarder l'URL de l'abonnement dans le localStorage pour l'utiliser après
+        if (data?.subscriptionUrl) {
+          localStorage.setItem('pendingSubscriptionUrl', data.subscriptionUrl);
+        }
+      } else if (data?.url) {
         window.location.href = data.url;
       }
     } catch (error) {

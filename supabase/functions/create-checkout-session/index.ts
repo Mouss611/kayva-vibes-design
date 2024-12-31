@@ -18,7 +18,7 @@ serve(async (req) => {
     
     // Convertir le prix en centimes et arrondir pour éviter les problèmes de précision
     const amountInCents = Math.round(price * 100);
-    const oneTimePaymentAmount = 3000; // 30€ en centimes
+    const registrationFeeAmount = 3000; // 30€ en centimes
     
     console.log(`Creating checkout session for ${hours}h at ${amountInCents} cents (${price}€)`);
     console.log('Using Stripe key:', Deno.env.get('STRIPE_SECRET_KEY')?.substring(0, 8) + '...');
@@ -45,62 +45,112 @@ serve(async (req) => {
       apiVersion: '2023-10-16',
     });
 
-    const lineItems = [];
-
-    // Ajouter l'abonnement mensuel
-    lineItems.push({
-      price_data: {
-        currency: 'eur',
-        product_data: {
-          name: `${hours}h de conduite`,
-          description: `Forfait de ${hours}h de conduite sur ${months} mois`,
-        },
-        unit_amount: amountInCents,
-        recurring: {
-          interval: 'month',
-          interval_count: 1,
-        },
-      },
-      quantity: 1,
-    });
-
-    // Si le paiement combiné est demandé, ajouter le produit à paiement unique
+    // Créer deux sessions distinctes si le paiement combiné est demandé
     if (includeCombinedPayment) {
-      lineItems.push({
-        price_data: {
-          currency: 'eur',
-          product_data: {
-            name: 'Frais d\'inscription',
-            description: 'Frais d\'inscription uniques',
+      // 1. Session pour les frais d'inscription (paiement unique)
+      const registrationSession = await stripe.checkout.sessions.create({
+        customer_email: user.email,
+        client_reference_id: user.id,
+        line_items: [{
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: 'Frais d\'inscription',
+              description: 'Frais d\'inscription uniques',
+            },
+            unit_amount: registrationFeeAmount,
           },
-          unit_amount: oneTimePaymentAmount,
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${req.headers.get('origin')}/dashboard/student?registration=success`,
+        cancel_url: `${req.headers.get('origin')}/dashboard/student?canceled=true`,
+        metadata: {
+          user_id: user.id,
+          type: 'registration_fee'
         },
-        quantity: 1,
       });
+
+      // 2. Session pour l'abonnement mensuel
+      const subscriptionSession = await stripe.checkout.sessions.create({
+        customer_email: user.email,
+        client_reference_id: user.id,
+        line_items: [{
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: `${hours}h de conduite`,
+              description: `Forfait de ${hours}h de conduite sur ${months} mois`,
+            },
+            unit_amount: amountInCents,
+            recurring: {
+              interval: 'month',
+              interval_count: 1,
+            },
+          },
+          quantity: 1,
+        }],
+        mode: 'subscription',
+        success_url: `${req.headers.get('origin')}/dashboard/student?subscription=success`,
+        cancel_url: `${req.headers.get('origin')}/dashboard/student?canceled=true`,
+        metadata: {
+          user_id: user.id,
+          hours: hours,
+          months: months,
+          type: 'subscription'
+        },
+      });
+
+      // Retourner les deux URLs
+      return new Response(
+        JSON.stringify({ 
+          registrationUrl: registrationSession.url,
+          subscriptionUrl: subscriptionSession.url 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    } else {
+      // Si pas de paiement combiné, créer uniquement la session d'abonnement
+      const session = await stripe.checkout.sessions.create({
+        customer_email: user.email,
+        client_reference_id: user.id,
+        line_items: [{
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: `${hours}h de conduite`,
+              description: `Forfait de ${hours}h de conduite sur ${months} mois`,
+            },
+            unit_amount: amountInCents,
+            recurring: {
+              interval: 'month',
+              interval_count: 1,
+            },
+          },
+          quantity: 1,
+        }],
+        mode: 'subscription',
+        success_url: `${req.headers.get('origin')}/dashboard/student?success=true`,
+        cancel_url: `${req.headers.get('origin')}/dashboard/student?canceled=true`,
+        metadata: {
+          user_id: user.id,
+          hours: hours,
+          months: months,
+          type: 'subscription'
+        },
+      });
+
+      return new Response(
+        JSON.stringify({ url: session.url }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
     }
-
-    const session = await stripe.checkout.sessions.create({
-      customer_email: user.email,
-      client_reference_id: user.id,
-      line_items: lineItems,
-      mode: 'payment', // Changed from subscription_and_payment to payment
-      success_url: `${req.headers.get('origin')}/dashboard/student?success=true`,
-      cancel_url: `${req.headers.get('origin')}/dashboard/student?canceled=true`,
-      metadata: {
-        user_id: user.id,
-        hours: hours,
-        months: months,
-        includes_registration_fee: includeCombinedPayment ? 'true' : 'false',
-      },
-    });
-
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    );
   } catch (error) {
     console.error('Error in create-checkout-session:', error);
     return new Response(
