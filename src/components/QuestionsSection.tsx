@@ -29,7 +29,8 @@ const QuestionsSection = () => {
     try {
       const { data, error } = await supabase
         .from('questions')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
 
@@ -66,10 +67,10 @@ const QuestionsSection = () => {
       const { error: answerError } = await supabase
         .from('user_answers')
         .insert({
+          user_id: user.id,
           question_id: currentQuestion.id,
           selected_answer: answer,
           is_correct: isCorrect,
-          user_id: user.id
         });
 
       if (answerError) throw answerError;
@@ -78,10 +79,10 @@ const QuestionsSection = () => {
       const { error: progressError } = await supabase
         .from('user_progress')
         .upsert({
+          user_id: user.id,
           category: currentQuestion.category,
           correct_answers: isCorrect ? 1 : 0,
           total_answers: 1,
-          user_id: user.id
         }, {
           onConflict: 'user_id,category'
         });
@@ -91,7 +92,7 @@ const QuestionsSection = () => {
       // Show feedback toast
       toast({
         title: isCorrect ? "Bonne réponse !" : "Mauvaise réponse",
-        description: isCorrect ? "Continuez comme ça !" : currentQuestion.explanation,
+        description: isCorrect ? "Continuez comme ça !" : "Ne vous découragez pas, continuez à apprendre !",
         variant: isCorrect ? "default" : "destructive",
       });
 
@@ -125,6 +126,7 @@ const QuestionsSection = () => {
         question={questions[currentQuestionIndex]}
         onAnswer={handleAnswer}
         onNextQuestion={handleNextQuestion}
+        isLastQuestion={currentQuestionIndex === questions.length - 1}
       />
     </div>
   );

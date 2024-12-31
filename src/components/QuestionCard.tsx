@@ -18,9 +18,15 @@ interface QuestionCardProps {
   };
   onAnswer: (answer: string) => void;
   onNextQuestion: () => void;
+  isLastQuestion: boolean;
 }
 
-const QuestionCard: React.FC<QuestionCardProps> = ({ question, onAnswer, onNextQuestion }) => {
+const QuestionCard: React.FC<QuestionCardProps> = ({ 
+  question, 
+  onAnswer, 
+  onNextQuestion,
+  isLastQuestion 
+}) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [hasAnswered, setHasAnswered] = useState(false);
 
@@ -87,7 +93,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onAnswer, onNextQ
         >
           Valider
         </Button>
-        {hasAnswered && (
+        {hasAnswered && !isLastQuestion && (
           <Button 
             onClick={handleNext}
             className="w-full"
