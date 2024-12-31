@@ -21,7 +21,6 @@ serve(async (req) => {
     const registrationFeeAmount = 3000; // 30€ en centimes
     
     console.log(`Creating checkout session for ${hours}h at ${amountInCents} cents (${price}€)`);
-    console.log('Using Stripe key:', Deno.env.get('STRIPE_SECRET_KEY')?.substring(0, 8) + '...');
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
