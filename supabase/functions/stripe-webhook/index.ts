@@ -33,42 +33,6 @@ serve(async (req) => {
     console.log('Processing webhook event:', event.type);
 
     switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object;
-        const customerId = session.customer;
-        const subscriptionId = session.subscription;
-        const userId = session.client_reference_id;
-        const amount = session.amount_total / 100;
-        const hours = session.metadata?.hours;
-
-        if (!userId || !customerId || !subscriptionId) {
-          throw new Error('Missing required fields in session');
-        }
-
-        // Update profiles with stripe_customer_id
-        await supabaseClient
-          .from('profiles')
-          .update({ stripe_customer_id: customerId })
-          .eq('id', userId);
-
-        // Create subscription record
-        await supabaseClient
-          .from('subscriptions')
-          .insert({
-            user_id: userId,
-            stripe_subscription_id: subscriptionId,
-            stripe_customer_id: customerId,
-            status: 'active',
-            start_date: new Date().toISOString(),
-            end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-            amount: amount,
-            hours: hours,
-            payment_count: 1,
-            next_payment_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          });
-        break;
-      }
-
       case 'invoice.paid': {
         const invoice = event.data.object;
         const subscriptionId = invoice.subscription;
@@ -85,15 +49,39 @@ serve(async (req) => {
           .single();
 
         if (subscription) {
-          await supabaseClient
-            .from('subscriptions')
-            .update({
-              payment_count: subscription.payment_count + 1,
-              last_payment_date: new Date().toISOString(),
-              next_payment_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              status: 'active'
-            })
-            .eq('stripe_subscription_id', subscriptionId);
+          // Vérifier si c'est le 3ème paiement
+          const newPaymentCount = subscription.payment_count + 1;
+          
+          if (newPaymentCount >= 3) {
+            console.log(`Cancelling subscription ${subscriptionId} after 3 payments`);
+            
+            // Annuler l'abonnement Stripe
+            await stripe.subscriptions.update(subscriptionId, {
+              cancel_at_period_end: true,
+            });
+
+            // Mettre à jour le statut dans la base de données
+            await supabaseClient
+              .from('subscriptions')
+              .update({
+                payment_count: newPaymentCount,
+                last_payment_date: new Date().toISOString(),
+                status: 'completed',
+                end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 jours à partir de maintenant
+              })
+              .eq('stripe_subscription_id', subscriptionId);
+          } else {
+            // Mettre à jour le compteur de paiements
+            await supabaseClient
+              .from('subscriptions')
+              .update({
+                payment_count: newPaymentCount,
+                last_payment_date: new Date().toISOString(),
+                next_payment_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                status: 'active'
+              })
+              .eq('stripe_subscription_id', subscriptionId);
+          }
         }
         break;
       }
