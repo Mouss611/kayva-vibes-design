@@ -3,26 +3,60 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import LocationAutocomplete from "@/components/LocationAutocomplete";
 
 interface LocationStepProps {
-  onNext: (data: { preferred_location: string }) => void;
-  data: { preferred_location: string };
+  onNext: (data: { 
+    preferred_location: string;
+    city: string;
+    postal_code: string;
+    coordinates: { lat: number; lng: number; }
+  }) => void;
+  data: { 
+    preferred_location: string;
+    city?: string;
+    postal_code?: string;
+    coordinates?: { lat: number; lng: number; }
+  };
 }
 
 const LocationStep = ({ onNext, data }: LocationStepProps) => {
   const [location, setLocation] = useState(data.preferred_location);
+  const [cityData, setCityData] = useState({
+    city: data.city || "",
+    postal_code: data.postal_code || "",
+    coordinates: data.coordinates || { lat: 0, lng: 0 }
+  });
   const { toast } = useToast();
 
   const handleNext = () => {
-    if (!location) {
+    if (!location || !cityData.city) {
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Veuillez sélectionner une zone d'activité",
+        description: "Veuillez sélectionner une zone d'activité et une ville",
       });
       return;
     }
-    onNext({ preferred_location: location });
+    onNext({ 
+      preferred_location: location,
+      city: cityData.city,
+      postal_code: cityData.postal_code,
+      coordinates: cityData.coordinates
+    });
+  };
+
+  const handleLocationSelect = (locationData: {
+    city: string;
+    postal_code: string;
+    lat: number;
+    lng: number;
+  }) => {
+    setCityData({
+      city: locationData.city,
+      postal_code: locationData.postal_code,
+      coordinates: { lat: locationData.lat, lng: locationData.lng }
+    });
   };
 
   return (
@@ -53,11 +87,20 @@ const LocationStep = ({ onNext, data }: LocationStepProps) => {
         </SelectContent>
       </Select>
 
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">Ville principale</label>
+        <LocationAutocomplete
+          onLocationSelect={handleLocationSelect}
+          defaultValue={cityData.city}
+          className="w-full"
+        />
+      </div>
+
       <div className="flex justify-end">
         <Button 
           onClick={handleNext}
-          disabled={!location}
-          className={!location ? "opacity-50 cursor-not-allowed" : ""}
+          disabled={!location || !cityData.city}
+          className={!location || !cityData.city ? "opacity-50 cursor-not-allowed" : ""}
         >
           Continuer
         </Button>
