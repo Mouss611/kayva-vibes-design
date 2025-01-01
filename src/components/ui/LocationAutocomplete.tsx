@@ -52,14 +52,14 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
     try {
       autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
         componentRestrictions: { country: "fr" },
-        fields: ["address_components", "geometry", "place_id"],
-        types: ["address"],
+        fields: ["address_components", "geometry", "place_id", "formatted_address"],
+        types: ["geocode", "establishment"],
       });
 
       autocompleteRef.current.addListener("place_changed", () => {
         const place = autocompleteRef.current?.getPlace();
         if (place?.geometry) {
-          const formattedAddress = inputRef.current?.value || "";
+          const formattedAddress = place.formatted_address || inputRef.current?.value || "";
           setInputValue(formattedAddress);
           onChange(formattedAddress, place.place_id);
         } else {
