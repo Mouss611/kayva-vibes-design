@@ -10,7 +10,7 @@ export const loadGoogleMapsScript = (onLoad: () => void, onError: () => void) =>
   }
 
   const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_PLACES_API_KEY || 'AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw'}&libraries=places`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_PLACES_API_KEY || 'AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw'}&libraries=places`;
   script.async = true;
   script.defer = true;
 
