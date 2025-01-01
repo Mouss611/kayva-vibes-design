@@ -62,12 +62,6 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
           const formattedAddress = place.formatted_address || inputRef.current?.value || "";
           setInputValue(formattedAddress);
           onChange(formattedAddress, place.place_id);
-        } else {
-          toast({
-            title: "Erreur",
-            description: "Veuillez sélectionner une adresse dans la liste",
-            variant: "destructive",
-          });
         }
       });
     } catch (error) {
@@ -89,6 +83,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
+    // Notify parent of the change immediately
     onChange(newValue);
   };
 
@@ -102,6 +97,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
         onChange={handleInputChange}
         className={`pl-10 ${className}`}
         placeholder={placeholder}
+        autoComplete="off"
       />
     </div>
   );
