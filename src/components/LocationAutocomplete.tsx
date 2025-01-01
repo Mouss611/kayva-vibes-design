@@ -24,11 +24,10 @@ declare global {
 const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className = "" }: LocationAutocompleteProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<any>(null);
-  const scriptRef = useRef<HTMLScriptElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const initializeAutocomplete = (apiKey: string) => {
+  const initializeAutocomplete = () => {
     if (!inputRef.current || autocompleteRef.current) return;
 
     try {
@@ -81,62 +80,64 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
     }
   };
 
-  const loadGoogleMapsScript = async () => {
-    try {
-      setIsLoading(true);
-      const { data: { GOOGLE_PLACES_API_KEY } } = await supabase.functions.invoke('get-google-places-key');
-      
-      if (!GOOGLE_PLACES_API_KEY) {
-        throw new Error("Clé API Google Places non trouvée");
-      }
+  useEffect(() => {
+    const loadGoogleMapsScript = async () => {
+      try {
+        setIsLoading(true);
+        const { data: { GOOGLE_PLACES_API_KEY }, error } = await supabase.functions.invoke('get-google-places-key');
+        
+        if (error || !GOOGLE_PLACES_API_KEY) {
+          throw new Error("Impossible de récupérer la clé API Google Places");
+        }
 
-      // Remove any existing Google Maps scripts
-      const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
-      existingScripts.forEach(script => script.remove());
+        // Remove any existing Google Maps scripts
+        const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
+        existingScripts.forEach(script => script.remove());
 
-      return new Promise<void>((resolve, reject) => {
+        // Create and append the new script
         const script = document.createElement("script");
         script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places`;
         script.async = true;
         script.defer = true;
-        scriptRef.current = script;
 
         script.onload = () => {
-          initializeAutocomplete(GOOGLE_PLACES_API_KEY);
-          resolve();
+          initializeAutocomplete();
+          setIsLoading(false);
         };
-        script.onerror = () => {
-          reject(new Error("Impossible de charger l'API Google Maps"));
+
+        script.onerror = (error) => {
+          console.error("Erreur lors du chargement du script Google Maps:", error);
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Impossible de charger l'API Google Maps",
+          });
+          setIsLoading(false);
         };
 
         document.head.appendChild(script);
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger l'autocomplétion des villes",
-      });
-      console.error("Erreur lors du chargement du script:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    loadGoogleMapsScript();
-
-    return () => {
-      // Clean up script and references when component unmounts
-      if (scriptRef.current) {
-        scriptRef.current.remove();
-        scriptRef.current = null;
+        return () => {
+          script.remove();
+          if (window.google?.maps) {
+            delete window.google.maps;
+          }
+          if (autocompleteRef.current) {
+            autocompleteRef.current = null;
+          }
+        };
+      } catch (error: any) {
+        console.error("Erreur:", error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: error.message || "Une erreur est survenue",
+        });
+        setIsLoading(false);
       }
-      if (window.google?.maps) {
-        delete window.google.maps;
-      }
-      autocompleteRef.current = null;
     };
+
+    loadGoogleMapsScript();
   }, []);
 
   return (
