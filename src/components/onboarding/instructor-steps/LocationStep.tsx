@@ -94,13 +94,18 @@ const LocationStep = ({ onNext, data }: LocationStepProps) => {
           defaultValue={cityData.city}
           className="w-full"
         />
+        {cityData.city && (
+          <p className="text-sm text-green-600">
+            Ville sélectionnée : {cityData.city}
+          </p>
+        )}
       </div>
 
       <div className="flex justify-end">
         <Button 
           onClick={handleNext}
           disabled={!location || !cityData.city}
-          className={!location || !cityData.city ? "opacity-50 cursor-not-allowed" : ""}
+          className="gradient-bg"
         >
           Continuer
         </Button>

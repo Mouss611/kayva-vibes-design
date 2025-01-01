@@ -24,24 +24,26 @@ declare global {
 const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className = "" }: LocationAutocompleteProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<any>(null);
-  const scriptRef = useRef<HTMLScriptElement | null>(null);
-  const [isScriptLoading, setIsScriptLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     const loadGoogleMapsScript = async () => {
       try {
-        // Prevent multiple script loads
-        if (isScriptLoading || scriptRef.current) return;
-        setIsScriptLoading(true);
-
+        setIsLoading(true);
         const { data: { GOOGLE_PLACES_API_KEY }, error } = await supabase.functions.invoke('get-google-places-key');
         
         if (error || !GOOGLE_PLACES_API_KEY) {
-          throw new Error("Impossible de récupérer la clé API Google Places");
+          console.error("Erreur lors de la récupération de la clé API:", error);
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Impossible de charger l'autocomplétion des villes. Veuillez réessayer plus tard.",
+          });
+          return;
         }
 
-        // Remove any existing Google Maps scripts to prevent duplicates
+        // Remove any existing Google Maps scripts
         const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
         existingScripts.forEach(script => script.remove());
 
@@ -49,24 +51,26 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
           const script = document.createElement("script");
           script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places`;
           script.async = true;
-          script.onload = () => {
-            scriptRef.current = script;
-            resolve();
-          };
+          script.onload = () => resolve();
           script.onerror = () => {
             reject(new Error("Erreur lors du chargement de Google Maps"));
+            toast({
+              variant: "destructive",
+              title: "Erreur",
+              description: "Impossible de charger le service de recherche de villes. Veuillez vérifier votre connexion internet.",
+            });
           };
           document.head.appendChild(script);
         });
       } catch (error: any) {
+        console.error("Erreur lors du chargement de Google Maps:", error);
         toast({
           variant: "destructive",
           title: "Erreur",
-          description: error.message || "Impossible de charger l'autocomplétion des villes",
+          description: "Une erreur est survenue lors du chargement du service de recherche de villes.",
         });
-        console.error("Erreur lors du chargement de Google Maps:", error);
       } finally {
-        setIsScriptLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -118,7 +122,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
         toast({
           variant: "destructive",
           title: "Erreur",
-          description: "Impossible d'initialiser l'autocomplétion des villes",
+          description: "Impossible d'initialiser la recherche de villes",
         });
       }
     };
@@ -133,14 +137,10 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
     init();
 
     return () => {
-      // Clean up
+      // Cleanup
       if (autocompleteRef.current) {
         window.google?.maps?.event?.clearInstanceListeners(autocompleteRef.current);
         autocompleteRef.current = null;
-      }
-      if (scriptRef.current) {
-        scriptRef.current.remove();
-        scriptRef.current = null;
       }
     };
   }, [onLocationSelect]);
@@ -152,7 +152,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
       defaultValue={defaultValue}
       className={className}
       placeholder="Entrez votre ville"
-      disabled={isScriptLoading}
+      disabled={isLoading}
     />
   );
 };
