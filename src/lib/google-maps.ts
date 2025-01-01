@@ -1,7 +1,10 @@
 // Gestionnaire de l'API Google Maps
 export const loadGoogleMapsScript = (onLoad: () => void, onError: () => void) => {
+  console.log("Début du chargement de l'API Google Maps");
+  
   // Si l'API est déjà chargée
   if (window.isGoogleMapsLoaded && window.google?.maps?.places) {
+    console.log("API Google Maps déjà chargée, initialisation directe");
     onLoad();
     return;
   }
@@ -12,16 +15,43 @@ export const loadGoogleMapsScript = (onLoad: () => void, onError: () => void) =>
   script.defer = true;
 
   script.onload = () => {
+    console.log("API Google Maps chargée avec succès");
     window.isGoogleMapsLoaded = true;
-    onLoad();
+    
+    // Vérification supplémentaire que l'API est bien disponible
+    if (window.google?.maps?.places) {
+      console.log("API Places disponible, initialisation...");
+      onLoad();
+    } else {
+      console.error("API Places non disponible après le chargement");
+      onError();
+    }
   };
 
-  script.onerror = onError;
+  script.onerror = (error) => {
+    console.error("Erreur lors du chargement de l'API Google Maps:", error);
+    onError();
+  };
 
   // Vérifier si le script existe déjà
   const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
   if (!existingScript) {
+    console.log("Ajout du script Google Maps au DOM");
     document.head.appendChild(script);
+  } else {
+    console.log("Script Google Maps déjà présent dans le DOM");
+    // Si le script existe mais n'est pas chargé, on attend son chargement
+    if (!window.google?.maps?.places) {
+      console.log("En attente du chargement du script existant...");
+      existingScript.addEventListener('load', () => {
+        console.log("Script existant chargé avec succès");
+        onLoad();
+      });
+      existingScript.addEventListener('error', () => {
+        console.error("Erreur lors du chargement du script existant");
+        onError();
+      });
+    }
   }
 };
 
@@ -29,23 +59,41 @@ export const initializeAutocomplete = (
   inputElement: HTMLInputElement,
   onPlaceChanged: () => void
 ) => {
-  const options = {
-    types: ['(cities)'],
-    componentRestrictions: { country: 'fr' },
-    fields: ['address_components', 'geometry', 'formatted_address']
-  };
+  console.log("Initialisation de l'autocomplétion");
+  
+  try {
+    const options = {
+      types: ['(cities)'],
+      componentRestrictions: { country: 'fr' },
+      fields: ['address_components', 'geometry', 'formatted_address']
+    };
 
-  const autocomplete = new window.google.maps.places.Autocomplete(
-    inputElement,
-    options
-  );
+    console.log("Configuration de l'autocomplétion:", options);
+    
+    const autocomplete = new window.google.maps.places.Autocomplete(
+      inputElement,
+      options
+    );
 
-  autocomplete.addListener("place_changed", onPlaceChanged);
-  return autocomplete;
+    console.log("Instance d'autocomplétion créée avec succès");
+    
+    autocomplete.addListener("place_changed", () => {
+      console.log("Événement place_changed déclenché");
+      onPlaceChanged();
+    });
+    
+    return autocomplete;
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation de l'autocomplétion:", error);
+    throw error;
+  }
 };
 
 export const extractPlaceInfo = (place: any) => {
+  console.log("Extraction des informations du lieu sélectionné:", place);
+  
   if (!place.geometry) {
+    console.error("Pas de géométrie disponible pour le lieu");
     return null;
   }
 
@@ -55,9 +103,11 @@ export const extractPlaceInfo = (place: any) => {
   place.address_components.forEach((component: any) => {
     if (component.types.includes("locality")) {
       cityName = component.long_name;
+      console.log("Ville trouvée:", cityName);
     }
     if (component.types.includes("postal_code")) {
       postalCode = component.long_name;
+      console.log("Code postal trouvé:", postalCode);
     }
   });
 
@@ -67,13 +117,17 @@ export const extractPlaceInfo = (place: any) => {
     );
     if (adminArea) {
       cityName = adminArea.long_name;
+      console.log("Nom de ville alternatif trouvé:", cityName);
     }
   }
 
-  return {
+  const result = {
     city: cityName,
     postal_code: postalCode,
     lat: place.geometry.location.lat(),
     lng: place.geometry.location.lng(),
   };
+
+  console.log("Informations extraites:", result);
+  return result;
 };
