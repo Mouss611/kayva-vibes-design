@@ -17,6 +17,7 @@ declare global {
   interface Window {
     google: any;
     initAutocomplete: () => void;
+    isGoogleMapsLoaded: boolean;
   }
 }
 
@@ -27,6 +28,8 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
   const { toast } = useToast();
 
   const onPlaceChanged = () => {
+    if (!autocompleteRef.current) return;
+    
     const place = autocompleteRef.current.getPlace();
 
     if (!place.geometry) {
@@ -57,6 +60,11 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
       if (adminArea) {
         cityName = adminArea.long_name;
       }
+    }
+
+    // Mise à jour du champ avec la ville sélectionnée
+    if (inputRef.current && cityName) {
+      inputRef.current.value = cityName;
     }
 
     onLocationSelect({
@@ -102,19 +110,21 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
 
   useEffect(() => {
     const loadGoogleMapsScript = () => {
+      // Si l'API est déjà chargée, initialiser directement l'autocomplétion
+      if (window.isGoogleMapsLoaded && window.google?.maps?.places) {
+        initializeAutocomplete();
+        return;
+      }
+
       try {
         setIsLoading(true);
-
-        // Remove any existing Google Maps scripts
-        const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
-        existingScripts.forEach(script => script.remove());
-
         const script = document.createElement("script");
         script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw&libraries=places`;
         script.async = true;
         script.defer = true;
 
         script.onload = () => {
+          window.isGoogleMapsLoaded = true;
           initializeAutocomplete();
           setIsLoading(false);
         };
@@ -129,7 +139,11 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
           setIsLoading(false);
         };
 
-        document.head.appendChild(script);
+        // Vérifier si le script existe déjà
+        const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+        if (!existingScript) {
+          document.head.appendChild(script);
+        }
       } catch (error: any) {
         console.error("Erreur lors du chargement de Google Maps:", error);
         toast({
@@ -149,7 +163,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
         autocompleteRef.current = null;
       }
     };
-  }, [toast, onLocationSelect]);
+  }, [toast]);
 
   return (
     <Input
