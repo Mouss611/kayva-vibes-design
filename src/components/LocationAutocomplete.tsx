@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface LocationAutocompleteProps {
@@ -31,37 +30,30 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
     const loadGoogleMapsScript = async () => {
       try {
         setIsLoading(true);
-        const { data: { GOOGLE_PLACES_API_KEY }, error } = await supabase.functions.invoke('get-google-places-key');
-        
-        if (error || !GOOGLE_PLACES_API_KEY) {
-          console.error("Erreur lors de la récupération de la clé API:", error);
-          toast({
-            variant: "destructive",
-            title: "Erreur",
-            description: "Impossible de charger l'autocomplétion des villes. Veuillez réessayer plus tard.",
-          });
-          return;
-        }
 
         // Remove any existing Google Maps scripts
         const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
         existingScripts.forEach(script => script.remove());
 
-        return new Promise<void>((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places`;
-          script.async = true;
-          script.onload = () => resolve();
-          script.onerror = () => {
-            reject(new Error("Erreur lors du chargement de Google Maps"));
-            toast({
-              variant: "destructive",
-              title: "Erreur",
-              description: "Impossible de charger le service de recherche de villes. Veuillez vérifier votre connexion internet.",
-            });
-          };
-          document.head.appendChild(script);
-        });
+        const script = document.createElement("script");
+        script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw&libraries=places";
+        script.async = true;
+        document.head.appendChild(script);
+
+        script.onload = () => {
+          initializeAutocomplete();
+          setIsLoading(false);
+        };
+
+        script.onerror = () => {
+          console.error("Erreur lors du chargement de Google Maps");
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Impossible de charger le service de recherche de villes. Veuillez vérifier votre connexion internet.",
+          });
+          setIsLoading(false);
+        };
       } catch (error: any) {
         console.error("Erreur lors du chargement de Google Maps:", error);
         toast({
@@ -69,7 +61,6 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
           title: "Erreur",
           description: "Une erreur est survenue lors du chargement du service de recherche de villes.",
         });
-      } finally {
         setIsLoading(false);
       }
     };
@@ -81,7 +72,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
         autocompleteRef.current = new window.google.maps.places.Autocomplete(
           inputRef.current,
           {
-            types: ["(cities)"],
+            types: ["geocode"],
             componentRestrictions: { country: "fr" },
           }
         );
@@ -127,14 +118,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
       }
     };
 
-    const init = async () => {
-      await loadGoogleMapsScript();
-      if (window.google?.maps) {
-        initializeAutocomplete();
-      }
-    };
-
-    init();
+    loadGoogleMapsScript();
 
     return () => {
       // Cleanup
