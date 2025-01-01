@@ -10,7 +10,7 @@ export const loadGoogleMapsScript = (onLoad: () => void, onError: () => void) =>
   }
 
   const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw&libraries=places`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_PLACES_API_KEY || 'AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw'}&libraries=places`;
   script.async = true;
   script.defer = true;
 
@@ -19,7 +19,7 @@ export const loadGoogleMapsScript = (onLoad: () => void, onError: () => void) =>
     window.isGoogleMapsLoaded = true;
     
     // Vérification supplémentaire que l'API est bien disponible
-    if (window.google?.maps?.places) {
+    if (window.google?.maps?.places?.Autocomplete) {
       console.log("API Places disponible, initialisation...");
       onLoad();
     } else {
@@ -45,7 +45,12 @@ export const loadGoogleMapsScript = (onLoad: () => void, onError: () => void) =>
       console.log("En attente du chargement du script existant...");
       existingScript.addEventListener('load', () => {
         console.log("Script existant chargé avec succès");
-        onLoad();
+        if (window.google?.maps?.places?.Autocomplete) {
+          onLoad();
+        } else {
+          console.error("API Places Autocomplete non disponible après le chargement du script existant");
+          onError();
+        }
       });
       existingScript.addEventListener('error', () => {
         console.error("Erreur lors du chargement du script existant");
@@ -61,6 +66,11 @@ export const initializeAutocomplete = (
 ) => {
   console.log("Initialisation de l'autocomplétion");
   
+  if (!window.google?.maps?.places?.Autocomplete) {
+    console.error("Google Places Autocomplete n'est pas disponible");
+    throw new Error("Google Places Autocomplete n'est pas disponible");
+  }
+
   try {
     const options = {
       types: ['(cities)'],
