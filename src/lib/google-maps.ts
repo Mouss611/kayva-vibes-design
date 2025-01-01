@@ -10,13 +10,13 @@ export const loadGoogleMapsScript = (onLoad: () => void, onError: () => void) =>
   }
 
   const script = document.createElement("script");
-  const apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initCallback`;
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initAutocomplete`;
   script.async = true;
   script.defer = true;
 
-  // Define the callback function
-  window.initCallback = () => {
+  // Définir la fonction de callback
+  window.initAutocomplete = () => {
     console.log("API Google Maps chargée avec succès via callback");
     window.isGoogleMapsLoaded = true;
     if (window.google?.maps?.places?.Autocomplete) {
