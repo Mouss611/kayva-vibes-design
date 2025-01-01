@@ -12,7 +12,7 @@ interface LocationAutocompleteProps {
 
 declare global {
   interface Window {
-    google: any;
+    google: typeof google;
     initAutocomplete: () => void;
   }
 }
