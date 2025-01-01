@@ -26,6 +26,80 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const onPlaceChanged = () => {
+    const place = autocompleteRef.current.getPlace();
+
+    if (!place.geometry) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Veuillez sélectionner une ville dans la liste.",
+      });
+      return;
+    }
+
+    let cityName = "";
+    let postalCode = "";
+
+    place.address_components.forEach((component: any) => {
+      if (component.types.includes("locality")) {
+        cityName = component.long_name;
+      }
+      if (component.types.includes("postal_code")) {
+        postalCode = component.long_name;
+      }
+    });
+
+    if (!cityName) {
+      const adminArea = place.address_components.find((component: any) =>
+        component.types.includes("administrative_area_level_1")
+      );
+      if (adminArea) {
+        cityName = adminArea.long_name;
+      }
+    }
+
+    onLocationSelect({
+      city: cityName,
+      postal_code: postalCode,
+      lat: place.geometry.location.lat(),
+      lng: place.geometry.location.lng(),
+    });
+
+    if (cityName) {
+      toast({
+        title: "Ville sélectionnée",
+        description: `Vous avez sélectionné ${cityName}`,
+      });
+    }
+  };
+
+  const initializeAutocomplete = () => {
+    if (!inputRef.current || autocompleteRef.current) return;
+
+    try {
+      const options = {
+        types: ['(cities)'],
+        componentRestrictions: { country: 'fr' },
+        fields: ['address_components', 'geometry', 'formatted_address']
+      };
+
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+        inputRef.current,
+        options
+      );
+
+      autocompleteRef.current.addListener("place_changed", onPlaceChanged);
+    } catch (error: any) {
+      console.error("Erreur lors de l'initialisation de l'autocomplétion:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible d'initialiser la recherche de villes",
+      });
+    }
+  };
+
   useEffect(() => {
     const loadGoogleMapsScript = () => {
       try {
@@ -35,12 +109,11 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
         const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
         existingScripts.forEach(script => script.remove());
 
-        // Create and load the script
         const script = document.createElement("script");
         script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw&libraries=places`;
         script.async = true;
         script.defer = true;
-        
+
         script.onload = () => {
           initializeAutocomplete();
           setIsLoading(false);
@@ -68,80 +141,6 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
       }
     };
 
-    const initializeAutocomplete = () => {
-      if (!inputRef.current || autocompleteRef.current) return;
-
-      try {
-        const options = {
-          types: ['(cities)'],
-          componentRestrictions: { country: 'fr' },
-          fields: ['address_components', 'geometry', 'formatted_address']
-        };
-
-        autocompleteRef.current = new window.google.maps.places.Autocomplete(
-          inputRef.current,
-          options
-        );
-
-        autocompleteRef.current.addListener("place_changed", () => {
-          const place = autocompleteRef.current.getPlace();
-          
-          if (!place.geometry) {
-            toast({
-              variant: "destructive",
-              title: "Erreur",
-              description: "Veuillez sélectionner une ville dans la liste",
-            });
-            return;
-          }
-
-          let postalCode = "";
-          let cityName = "";
-
-          place.address_components.forEach((component: any) => {
-            if (component.types.includes("postal_code")) {
-              postalCode = component.long_name;
-            }
-            if (component.types.includes("locality")) {
-              cityName = component.long_name;
-            }
-          });
-
-          // Si on ne trouve pas le nom de la ville dans locality, on essaie avec administrative_area_level_1
-          if (!cityName) {
-            const adminArea = place.address_components.find((component: any) => 
-              component.types.includes("administrative_area_level_1")
-            );
-            if (adminArea) {
-              cityName = adminArea.long_name;
-            }
-          }
-
-          onLocationSelect({
-            city: cityName,
-            postal_code: postalCode,
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-          });
-
-          // Afficher un toast de confirmation
-          if (cityName) {
-            toast({
-              title: "Ville sélectionnée",
-              description: `Vous avez sélectionné ${cityName}`,
-            });
-          }
-        });
-      } catch (error: any) {
-        console.error("Erreur lors de l'initialisation de l'autocomplétion:", error);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Impossible d'initialiser la recherche de villes",
-        });
-      }
-    };
-
     loadGoogleMapsScript();
 
     return () => {
@@ -150,7 +149,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
         autocompleteRef.current = null;
       }
     };
-  }, [onLocationSelect, toast]);
+  }, [toast, onLocationSelect]);
 
   return (
     <Input
