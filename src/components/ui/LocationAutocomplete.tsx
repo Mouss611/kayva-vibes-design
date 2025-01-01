@@ -22,7 +22,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const { toast } = useToast();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [inputValue, setInputValue] = useState(value || "");
+  const [inputValue, setInputValue] = useState(value);
 
   useEffect(() => {
     if (!window.google) {
@@ -52,16 +52,14 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
     try {
       autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
         componentRestrictions: { country: "fr" },
-        fields: ["address_components", "geometry", "place_id", "formatted_address"],
-        types: ["geocode", "establishment"],
+        types: ["(cities)"],
       });
 
       autocompleteRef.current.addListener("place_changed", () => {
         const place = autocompleteRef.current?.getPlace();
-        if (place?.geometry) {
-          const formattedAddress = place.formatted_address || inputRef.current?.value || "";
-          setInputValue(formattedAddress);
-          onChange(formattedAddress, place.place_id);
+        if (place?.formatted_address) {
+          setInputValue(place.formatted_address);
+          onChange(place.formatted_address, place.place_id);
         }
       });
     } catch (error) {
@@ -83,7 +81,6 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
-    // Notify parent of the change immediately
     onChange(newValue);
   };
 
