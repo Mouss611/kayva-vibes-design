@@ -27,7 +27,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
   const { toast } = useToast();
 
   useEffect(() => {
-    const loadGoogleMapsScript = async () => {
+    const loadGoogleMapsScript = () => {
       try {
         setIsLoading(true);
 
@@ -35,11 +35,12 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
         const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
         existingScripts.forEach(script => script.remove());
 
+        // Create and load the script
         const script = document.createElement("script");
-        script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw&libraries=places";
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw&libraries=places`;
         script.async = true;
-        document.head.appendChild(script);
-
+        script.defer = true;
+        
         script.onload = () => {
           initializeAutocomplete();
           setIsLoading(false);
@@ -54,6 +55,8 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
           });
           setIsLoading(false);
         };
+
+        document.head.appendChild(script);
       } catch (error: any) {
         console.error("Erreur lors du chargement de Google Maps:", error);
         toast({
@@ -69,12 +72,15 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
       if (!inputRef.current || autocompleteRef.current) return;
 
       try {
+        const options = {
+          types: ['(cities)'],
+          componentRestrictions: { country: 'fr' },
+          fields: ['address_components', 'geometry', 'formatted_address']
+        };
+
         autocompleteRef.current = new window.google.maps.places.Autocomplete(
           inputRef.current,
-          {
-            types: ["geocode"],
-            componentRestrictions: { country: "fr" },
-          }
+          options
         );
 
         autocompleteRef.current.addListener("place_changed", () => {
@@ -101,12 +107,30 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
             }
           });
 
+          // Si on ne trouve pas le nom de la ville dans locality, on essaie avec administrative_area_level_1
+          if (!cityName) {
+            const adminArea = place.address_components.find((component: any) => 
+              component.types.includes("administrative_area_level_1")
+            );
+            if (adminArea) {
+              cityName = adminArea.long_name;
+            }
+          }
+
           onLocationSelect({
             city: cityName,
             postal_code: postalCode,
             lat: place.geometry.location.lat(),
             lng: place.geometry.location.lng(),
           });
+
+          // Afficher un toast de confirmation
+          if (cityName) {
+            toast({
+              title: "Ville sélectionnée",
+              description: `Vous avez sélectionné ${cityName}`,
+            });
+          }
         });
       } catch (error: any) {
         console.error("Erreur lors de l'initialisation de l'autocomplétion:", error);
@@ -121,13 +145,12 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
     loadGoogleMapsScript();
 
     return () => {
-      // Cleanup
       if (autocompleteRef.current) {
         window.google?.maps?.event?.clearInstanceListeners(autocompleteRef.current);
         autocompleteRef.current = null;
       }
     };
-  }, [onLocationSelect]);
+  }, [onLocationSelect, toast]);
 
   return (
     <Input
