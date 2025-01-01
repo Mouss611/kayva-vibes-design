@@ -4,7 +4,7 @@ import { useGooglePlaces } from "@/hooks/useGooglePlaces";
 declare global {
   interface Window {
     google: any;
-    initAutocomplete: () => void;
+    initCallback: () => void;
     isGoogleMapsLoaded: boolean;
   }
 }

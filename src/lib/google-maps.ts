@@ -10,15 +10,15 @@ export const loadGoogleMapsScript = (onLoad: () => void, onError: () => void) =>
   }
 
   const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_PLACES_API_KEY || 'AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw'}&libraries=places`;
+  const apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initCallback`;
   script.async = true;
   script.defer = true;
 
-  script.onload = () => {
-    console.log("API Google Maps chargée avec succès");
+  // Define the callback function
+  window.initCallback = () => {
+    console.log("API Google Maps chargée avec succès via callback");
     window.isGoogleMapsLoaded = true;
-    
-    // Vérification supplémentaire que l'API est bien disponible
     if (window.google?.maps?.places?.Autocomplete) {
       console.log("API Places disponible, initialisation...");
       onLoad();
