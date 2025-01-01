@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface LocationAutocompleteProps {
@@ -12,6 +11,7 @@ interface LocationAutocompleteProps {
   }) => void;
   defaultValue?: string;
   className?: string;
+  apiKey?: string;
 }
 
 declare global {
@@ -21,7 +21,12 @@ declare global {
   }
 }
 
-const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className = "" }: LocationAutocompleteProps) => {
+const LocationAutocomplete = ({ 
+  onLocationSelect, 
+  defaultValue = "", 
+  className = "",
+  apiKey = "AIzaSyBc1Xonf04mqKuyzhNxkh3OdOkzrc5tcB8" // Clé par défaut
+}: LocationAutocompleteProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,11 +89,6 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
     const loadGoogleMapsScript = async () => {
       try {
         setIsLoading(true);
-        const { data: { GOOGLE_PLACES_API_KEY }, error } = await supabase.functions.invoke('get-google-places-key');
-        
-        if (error || !GOOGLE_PLACES_API_KEY) {
-          throw new Error("Impossible de récupérer la clé API Google Places");
-        }
 
         // Remove any existing Google Maps scripts
         const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
@@ -96,7 +96,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
 
         // Create and append the new script
         const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
         script.async = true;
         script.defer = true;
 
@@ -138,7 +138,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
     };
 
     loadGoogleMapsScript();
-  }, []);
+  }, [apiKey]); // Ajout de apiKey dans les dépendances
 
   return (
     <Input

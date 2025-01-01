@@ -93,6 +93,7 @@ const LocationStep = ({ onNext, data }: LocationStepProps) => {
           onLocationSelect={handleLocationSelect}
           defaultValue={cityData.city}
           className="w-full"
+          apiKey="AIzaSyBc1Xonf04mqKuyzhNxkh3OdOkzrc5tcB8" // Vous pouvez changer cette clé ici
         />
       </div>
 
