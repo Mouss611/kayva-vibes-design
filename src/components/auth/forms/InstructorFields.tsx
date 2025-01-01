@@ -1,7 +1,7 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import LocationAutocomplete from "@/components/LocationAutocomplete";
 
 interface InstructorFieldsProps {
   form: UseFormReturn<any>;
@@ -37,16 +37,9 @@ const InstructorFields = ({ form }: InstructorFieldsProps) => {
         name="postalCode"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Ville et code postal</FormLabel>
+            <FormLabel>Code postal</FormLabel>
             <FormControl>
-              <LocationAutocomplete
-                onLocationSelect={(location) => {
-                  form.setValue("postalCode", location.postal_code);
-                  form.setValue("city", location.city);
-                }}
-                defaultValue={field.value}
-                className="w-full"
-              />
+              <Input placeholder="75001" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

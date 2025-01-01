@@ -19,10 +19,4 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  define: {
-    // Provide a default value for process.env
-    'process.env': {
-      GOOGLE_PLACES_API_KEY: process.env.GOOGLE_PLACES_API_KEY || 'AIzaSyAKSiWVJPWa_Dr4U-Ld0QXeBkP53HwMjfw',
-    }
-  }
 }));

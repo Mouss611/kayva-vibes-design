@@ -23,7 +23,6 @@ interface RegisterFormValues {
   confirmPassword: string;
   employmentStatus?: string;
   postalCode?: string;
-  city?: string;
   preferredLocation?: string;
   teachingHours?: string;
 }
@@ -43,7 +42,6 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
       confirmPassword: "",
       employmentStatus: "",
       postalCode: "",
-      city: "",
       preferredLocation: "",
       teachingHours: "",
     },
@@ -72,7 +70,6 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
             phone_number: data.phoneNumber,
             employment_status: data.employmentStatus,
             postal_code: data.postalCode,
-            city: data.city,
             preferred_location: data.preferredLocation,
             teaching_hours: data.teachingHours,
           },

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import QuestionCard from './QuestionCard';
+import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { ArrowRight } from 'lucide-react';
 
 interface Question {
   id: string;
@@ -29,8 +31,7 @@ const QuestionsSection = () => {
     try {
       const { data, error } = await supabase
         .from('questions')
-        .select('*')
-        .order('created_at', { ascending: true });
+        .select('*');
 
       if (error) throw error;
 
@@ -67,10 +68,10 @@ const QuestionsSection = () => {
       const { error: answerError } = await supabase
         .from('user_answers')
         .insert({
-          user_id: user.id,
           question_id: currentQuestion.id,
           selected_answer: answer,
           is_correct: isCorrect,
+          user_id: user.id
         });
 
       if (answerError) throw answerError;
@@ -79,10 +80,10 @@ const QuestionsSection = () => {
       const { error: progressError } = await supabase
         .from('user_progress')
         .upsert({
-          user_id: user.id,
           category: currentQuestion.category,
           correct_answers: isCorrect ? 1 : 0,
           total_answers: 1,
+          user_id: user.id
         }, {
           onConflict: 'user_id,category'
         });
@@ -92,7 +93,7 @@ const QuestionsSection = () => {
       // Show feedback toast
       toast({
         title: isCorrect ? "Bonne réponse !" : "Mauvaise réponse",
-        description: isCorrect ? "Continuez comme ça !" : "Ne vous découragez pas, continuez à apprendre !",
+        description: isCorrect ? "Continuez comme ça !" : currentQuestion.explanation,
         variant: isCorrect ? "default" : "destructive",
       });
 
@@ -106,7 +107,7 @@ const QuestionsSection = () => {
     }
   };
 
-  const handleNextQuestion = () => {
+  const nextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
@@ -125,9 +126,15 @@ const QuestionsSection = () => {
       <QuestionCard
         question={questions[currentQuestionIndex]}
         onAnswer={handleAnswer}
-        onNextQuestion={handleNextQuestion}
-        isLastQuestion={currentQuestionIndex === questions.length - 1}
       />
+      {currentQuestionIndex < questions.length - 1 && (
+        <div className="text-center">
+          <Button onClick={nextQuestion} className="gap-2">
+            Question suivante
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
