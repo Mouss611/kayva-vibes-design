@@ -22,10 +22,10 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const { toast } = useToast();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [inputValue, setInputValue] = useState(value || "");
 
   useEffect(() => {
     if (!window.google) {
-      // Load the Google Maps Places API
       const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete`;
       script.async = true;
@@ -60,6 +60,7 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
         const place = autocompleteRef.current?.getPlace();
         if (place?.geometry) {
           const formattedAddress = inputRef.current?.value || "";
+          setInputValue(formattedAddress);
           onChange(formattedAddress, place.place_id);
         } else {
           toast({
@@ -85,14 +86,20 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Entrez votre adr
     };
   }, [isLoaded, onChange]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    onChange(newValue);
+  };
+
   return (
     <div className="relative">
       <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
       <Input
         ref={inputRef}
         type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={inputValue}
+        onChange={handleInputChange}
         className={`pl-10 ${className}`}
         placeholder={placeholder}
       />
