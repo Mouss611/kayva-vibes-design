@@ -63,7 +63,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
               let postalCode = "";
               let cityName = "";
 
-              // Extraire le code postal et le nom de la ville
+              // Extract postal code and city name
               place.address_components.forEach((component: any) => {
                 if (component.types.includes("postal_code")) {
                   postalCode = component.long_name;
@@ -97,7 +97,7 @@ const LocationAutocomplete = ({ onLocationSelect, defaultValue = "", className =
     initAutocomplete();
 
     return () => {
-      // Nettoyage du script lors du démontage du composant
+      // Clean up script when component unmounts
       const script = document.querySelector('script[src*="maps.googleapis.com"]');
       if (script) {
         script.remove();
